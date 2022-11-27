@@ -1,3 +1,5 @@
+import numpy as np
+
 from functions import *
 
 # Define grid size
@@ -35,11 +37,15 @@ alpha = thDiffusivity(k_mud, rho, cpHat)
 # Initialize Temperature array
 temp_array = initialize_temp_array(irows, jcols)
 
-# Set boundaries
-temp_array = set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left, k_mud)
-
-
-
-# temp_array = comp_temp_ij(temp_array, vz_array, r_array, dr, alpha, irows)
-
+max_error = 1000
+i = 0
+while (max_error>50) and (i < 100):
+    i += 1
+    # Set boundaries
+    temp_array_old = np.copy(temp_array) # for error computing
+    temp_array = set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left, k_mud)
+    temp_array = comp_temp_ij(temp_array, vz_array, r_array, dr, alpha, irows)
+    error_array = np.absolute(temp_array - temp_array_old)
+    max_error = error_array.max()
+    print(max_error)
 print(temp_array)
