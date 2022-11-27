@@ -13,7 +13,21 @@ def vz(r,inside=1):
     else:
         return 175.7*(1-(r/3.25)**2.-1.811*math.log(3.25/r)) 
 
+def comp_vz_array(r_array, pipe_j, irows, jcols):
+    '''
+    Return vz array
+    :param r_array: Dimensions array in r direction
+    :param pipe_j: Index for pipe wall
+    :param irows: i-rows for grid dimension
+    :param jcols: j-cols for grid dimension
+    :return: vz_array
+    '''
 
+    r_array = np.tile(r_array, (irows, jcols))
+    vz_array = np.ones((irows, jcols))
+    vz_array[:pipe_j+1,:] = vz(r_array[:pipe_j+1], inside=1)
+    vz_array[pipe_j+1:, :] = vz(r_array[pipe_j+1:], inside=0)
+    return vz_array
 
 def thDiffusivity(k, rho, cpHat):
     #thDiffusivity is the thermal diffusivity in ft^2/s

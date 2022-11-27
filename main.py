@@ -24,6 +24,7 @@ z_array, dz = z_array(zmax, irows)
 pipe_j = search_index(r_array, r_dp) # j index for r = r_dp
 shoe_i = search_index(z_array, z_shoe) # i index for z = z_shoe
 form_temp_array = gen_form_temp_array(temp_grad, t_surf, z_array)
+vz_array = comp_vz_array(r_array, pipe_j, irows, jcols)
 # Initialize Temperature array
 temp_array = initialize_temp_array(irows, jcols)
 
@@ -39,5 +40,4 @@ temp_array = set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_
 # temp_array[-1, :] = temp_array[-3, :] - 2*dz*q0
 # # Left Boundary
 # temp_array[:, 0] = temp_array[:, 2] - 2*dr*q_left
-
 print(temp_array)
