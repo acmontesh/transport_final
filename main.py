@@ -4,6 +4,11 @@ from functions import *
 irows = 10
 jcols = 10
 
+# Fluid Properties (REVIEW!)
+k_mud = 2 #
+rho = 1.0 # gr/cm3
+cpHat = 1 #
+
 # Define well dimensions
 rmax = 12.25/2 # inches
 r_dp = 6/2 # inches
@@ -25,19 +30,16 @@ pipe_j = search_index(r_array, r_dp) # j index for r = r_dp
 shoe_i = search_index(z_array, z_shoe) # i index for z = z_shoe
 form_temp_array = gen_form_temp_array(temp_grad, t_surf, z_array)
 vz_array = comp_vz_array(r_array, pipe_j, irows, jcols)
+alpha = thDiffusivity(k_mud, rho, cpHat)
+
 # Initialize Temperature array
 temp_array = initialize_temp_array(irows, jcols)
 
 # Set boundaries
-temp_array = set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left)
-# # Upper Boundary
-# temp_array[0, 0:pipe_j+1] = t_surf
-# temp_array[0, pipe_j+1:] = temp_array[2, pipe_j+1:] - 2*dr*q_top
-# # Right Boundary
-# temp_array[:shoe_i+1, -1] = temp_array[:shoe_i+1, -3] - 2*dr*q_right
-# temp_array[shoe_i+1:, -1] = form_temp_array[shoe_i+1:]
-# # Bottom Boundary
-# temp_array[-1, :] = temp_array[-3, :] - 2*dz*q0
-# # Left Boundary
-# temp_array[:, 0] = temp_array[:, 2] - 2*dr*q_left
+temp_array = set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left, k_mud)
+
+
+
+# temp_array = comp_temp_ij(temp_array, vz_array, r_array, dr, alpha, irows)
+
 print(temp_array)

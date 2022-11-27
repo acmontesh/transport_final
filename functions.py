@@ -51,7 +51,7 @@ def lambda2(r, dr):
     #dr is the cell length in the grid, in ft. 
     return dr*3/r
 
-def comp_temp_ij(temp_array, vz, r, dr, alpha):
+def comp_temp_ij(temp_array, vz_array, r_array, dr, alpha, irows):
     '''
     Returns Temperature Array 'temp_array' after computing heat transfer
     :param vz: fluid velocity in ft/s
@@ -62,15 +62,23 @@ def comp_temp_ij(temp_array, vz, r, dr, alpha):
     '''
 
     # Compute current lambdas
-    lambda1_ij = lambda1(vz, dr, alpha)
-    lambda2_ij = lambda2(r, dr)
+    lambda1_ij = lambda1(vz_array, dr, alpha)
+    lambda2_ij = lambda2(r_array, dr)
+    lambda2_ij = np.tile(lambda2_ij, (irows, 1))
     # Compute current Temperature
-    #t_ij = lambda1_ij(t_iplus1-t_iminus1) + 0.5*(t_iplus1+t_iminus1) - lambda2_ij(t_jplus1 - t_jminus1)
+    # t_ij = lambda1_ij(t_iplus1-t_iminus1) + 0.5*(t_iplus1+t_iminus1) - lambda2_ij(t_jplus1 - t_jminus1)
     t_iplus1 = temp_array[2:, 1:-1]
+    lambda1_plus1 = lambda1_ij[2:, 1:-1]
     t_iminus1 = temp_array[:-2, 1:-1]
+    lambda1_minus1 = lambda1_ij[:-2, 1:-1]
     t_jplus1 = temp_array[1:-1, 2:]
+    lambda2_plus1 = lambda2_ij[1:-1, 2:]
     t_jminus1 = temp_array[1:-1, :-2]
-    temp_array[1:-1, 1:-1] = lambda1_ij(t_iplus1-t_iminus1) + 0.5*(t_iplus1+t_iminus1) - lambda2_ij(t_jplus1 - t_jminus1)
+    lambda2_minus1 = lambda2_ij[1:-1, :-2]
+
+    temp_array_new = (t_iplus1 * lambda1_plus1 - t_iminus1 * lambda1_minus1) + 0.5 * (t_iplus1 + t_iminus1) - (
+            t_jplus1 * lambda2_plus1 - t_jminus1 * lambda2_minus1)
+    temp_array[1:-1, 1:-1] = temp_array_new
     return temp_array
 
 def r_array(rmax, jcols):
@@ -82,7 +90,7 @@ def r_array(rmax, jcols):
     '''
 #     rstep = np.linspace(0, 10, 5)
 #     rstep_array = np.tile(rstep, (4, 1))
-    r_array_i = np.linspace(0, rmax, jcols)
+    r_array_i = np.linspace(0.01, rmax, jcols)
     dr = rmax/(jcols - 1)
     return r_array_i, dr
 
@@ -131,7 +139,7 @@ def gen_form_temp_array(temp_grad, t_surf, z_array):
     return form_temp_array
 
 
-def set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left):
+def set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left, k_mud):
     '''
     Return temp_array with boundary conditions
     :param temp_array: Temperature Array
@@ -155,7 +163,7 @@ def set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_t
     temp_array[:shoe_i + 1, -1] = temp_array[:shoe_i + 1, -3] - 2 * dr * q_right
     temp_array[shoe_i + 1:, -1] = form_temp_array[shoe_i + 1:]
     # Bottom Boundary
-    temp_array[-1, :] = temp_array[-3, :] - 2 * dz * q0
+    temp_array[-1, :] = temp_array[-3, :] + q0/k_mud # Based on Fourier's law #temp_array[-3, :] - 2 * dz * q0
     # Left Boundary
     temp_array[:, 0] = temp_array[:, 2] - 2 * dr * q_left
     return temp_array
