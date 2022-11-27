@@ -87,3 +87,25 @@ def initialize_temp_array(irows, jcols):
     '''
     return np.ones((irows, jcols))
 
+def search_index(arr, value):
+    '''
+    Return index number for value in array arr, where values are lower than value
+    :param arr: Search array
+    :param value: Required value
+    :return: idx
+    '''
+    idx = arr.searchsorted(value, 'right') - 1
+    return idx
+
+def gen_form_temp_array(temp_grad, t_surf, z_array):
+    '''
+    Return formation temperature array based on temperature gradient 'temp_grad'
+    and surface temperature 't_surf'
+    :param temp_grad: Temperature Gradient in degC/ft
+    :param t_surf: Surface Temperature in degC
+    :param z_array: z_array (depth array)
+    :return:formation temperature array
+    '''
+
+    form_temp_array = z_array*temp_grad/100 + t_surf
+    return form_temp_array
