@@ -59,10 +59,31 @@ def comp_temp_ij(vz, r, dr, alpha, t_iplus1, t_iminus1, t_jplus1, t_jminus1):
     return t_ij
 
 def r_array(rmax, jcols):
+    '''
+    Return array in r direction
+    :param rmax: Maximum radius
+    :param jcols: Number of columns in r direction
+    :return: r_array
+    '''
 #     rstep = np.linspace(0, 10, 5)
 #     rstep_array = np.tile(rstep, (4, 1))
     return np.linspace(0, rmax, jcols)
 
 def z_array(zmax, irows):
+    '''
+    Return array in z direction
+    :param zmax: Maximum depth (max. z)
+    :param irows: Number of rows in z direction
+    :return: z_array
+    '''
     return np.linspace(0, zmax, irows)
+
+def initialize_temp_array(irows, jcols):
+    '''
+    Returns array of ones for initial temperature array
+    :param irows: Number of rows in array
+    :param jcols: Number of columns in array
+    :return: temp_array
+    '''
+    return np.ones(irows, jcols)
 
