@@ -28,15 +28,16 @@ form_temp_array = gen_form_temp_array(temp_grad, t_surf, z_array)
 temp_array = initialize_temp_array(irows, jcols)
 
 # Set boundaries
-# Upper Boundary
-temp_array[0, 0:pipe_j+1] = t_surf
-temp_array[0, pipe_j+1:] = temp_array[2, pipe_j+1:] - 2*dr*q_top
-# Right Boundary
-temp_array[:shoe_i+1, -1] = temp_array[:shoe_i+1, -3] - 2*dr*q_right
-temp_array[shoe_i+1:, -1] = form_temp_array[shoe_i+1:]
-# Bottom Boundary
-temp_array[-1, :] = temp_array[-3, :] - 2*dz*q0
-# Left Boundary
-temp_array[:, 0] = temp_array[:, 2] - 2*dr*q_left
+temp_array = set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left)
+# # Upper Boundary
+# temp_array[0, 0:pipe_j+1] = t_surf
+# temp_array[0, pipe_j+1:] = temp_array[2, pipe_j+1:] - 2*dr*q_top
+# # Right Boundary
+# temp_array[:shoe_i+1, -1] = temp_array[:shoe_i+1, -3] - 2*dr*q_right
+# temp_array[shoe_i+1:, -1] = form_temp_array[shoe_i+1:]
+# # Bottom Boundary
+# temp_array[-1, :] = temp_array[-3, :] - 2*dz*q0
+# # Left Boundary
+# temp_array[:, 0] = temp_array[:, 2] - 2*dr*q_left
 
 print(temp_array)

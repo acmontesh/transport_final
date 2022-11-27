@@ -37,26 +37,27 @@ def lambda2(r, dr):
     #dr is the cell length in the grid, in ft. 
     return dr*3/r
 
-def comp_temp_ij(vz, r, dr, alpha, t_iplus1, t_iminus1, t_jplus1, t_jminus1):
+def comp_temp_ij(temp_array, vz, r, dr, alpha):
     '''
-    Returns Temperature at current index ij.
+    Returns Temperature Array 'temp_array' after computing heat transfer
     :param vz: fluid velocity in ft/s
     :param r: distance from the center of the drill pipe, in inches
     :param dr: cell length in the grid, in ft
     :param alpha: mud thermal diffusivity in ft^2/s
-    :param t_iplus1: Temperature in i+1, j
-    :param t_iminus1: Temperature in i-1, j
-    :param t_jplus1: Temperature in i, j+1
-    :param t_jminus1: Temperature in i, j-1
-    :return: t_ij (Temperature at current index ij)
+    :return: temp_array
     '''
 
     # Compute current lambdas
     lambda1_ij = lambda1(vz, dr, alpha)
     lambda2_ij = lambda2(r, dr)
     # Compute current Temperature
-    t_ij = lambda1_ij(t_iplus1-t_iminus1) + 0.5*(t_iplus1+t_iminus1) - lambda2_ij(t_jplus1 - t_jminus1)
-    return t_ij
+    #t_ij = lambda1_ij(t_iplus1-t_iminus1) + 0.5*(t_iplus1+t_iminus1) - lambda2_ij(t_jplus1 - t_jminus1)
+    t_iplus1 = temp_array[2:, 1:-1]
+    t_iminus1 = temp_array[:-2, 1:-1]
+    t_jplus1 = temp_array[1:-1, 2:]
+    t_jminus1 = temp_array[1:-1, :-2]
+    temp_array[1:-1, 1:-1] = lambda1_ij(t_iplus1-t_iminus1) + 0.5*(t_iplus1+t_iminus1) - lambda2_ij(t_jplus1 - t_jminus1)
+    return temp_array
 
 def r_array(rmax, jcols):
     '''
@@ -81,6 +82,7 @@ def z_array(zmax, irows):
     z_array_i = np.linspace(0, zmax, irows)
     dz = zmax/(irows - 1)
     return z_array_i, dz
+
 
 def initialize_temp_array(irows, jcols):
     '''
@@ -113,3 +115,33 @@ def gen_form_temp_array(temp_grad, t_surf, z_array):
 
     form_temp_array = z_array*temp_grad/100 + t_surf
     return form_temp_array
+
+
+def set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left):
+    '''
+    Return temp_array with boundary conditions
+    :param temp_array: Temperature Array
+    :param form_temp_array: Formation Temperature Array
+    :param dr: Step in r direction
+    :param dz: Step in z direction
+    :param pipe_j: Pipe wall j index (column)
+    :param shoe_i: Casing Shoe i index (row)
+    :param t_surf: Mud Surface Temperature
+    :param q_top: Heat transfer coefficient for annular top
+    :param q_right: Heat transfer coefficient for r = 0 (left boundary)
+    :param q0: Heat transfer coefficient due to pipe friction
+    :param q_left: Heat transfer coefficient for Casing (right boundary)
+    :return:
+    '''
+    # Set boundaries
+    # Upper Boundary
+    temp_array[0, 0:pipe_j + 1] = t_surf
+    temp_array[0, pipe_j + 1:] = temp_array[2, pipe_j + 1:] - 2 * dr * q_top
+    # Right Boundary
+    temp_array[:shoe_i + 1, -1] = temp_array[:shoe_i + 1, -3] - 2 * dr * q_right
+    temp_array[shoe_i + 1:, -1] = form_temp_array[shoe_i + 1:]
+    # Bottom Boundary
+    temp_array[-1, :] = temp_array[-3, :] - 2 * dz * q0
+    # Left Boundary
+    temp_array[:, 0] = temp_array[:, 2] - 2 * dr * q_left
+    return temp_array
