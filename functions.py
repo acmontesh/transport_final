@@ -7,11 +7,11 @@ def vz(r,inside=1):
     # vz is the z-velocity as a function of r in ft/s. 
     #r is the distance from the center of the drill pipe, in inches. 
     #inside is a boolean buffer that indicates whether the node is inside or outside of the DP. 
-    import math
+    # import math
     if inside==1:
         return 0.32*(1-(r/2.52)**2.)
     else:
-        return 175.7*(1-(r/3.25)**2.-1.811*math.log(3.25/r)) 
+        return 175.7*(1-(r/3.25)**2.-1.811*np.log(3.25/r))
 
 def comp_vz_array(r_array, pipe_j, irows, jcols):
     '''
@@ -23,10 +23,10 @@ def comp_vz_array(r_array, pipe_j, irows, jcols):
     :return: vz_array
     '''
 
-    r_array = np.tile(r_array, (irows, jcols))
+    r_array = np.tile(r_array, (irows, 1))
     vz_array = np.ones((irows, jcols))
-    vz_array[:pipe_j+1,:] = vz(r_array[:pipe_j+1], inside=1)
-    vz_array[pipe_j+1:, :] = vz(r_array[pipe_j+1:], inside=0)
+    vz_array[:,:pipe_j+1] = vz(r_array[:,:pipe_j+1], inside=1)
+    vz_array[:,pipe_j+1:] = vz(r_array[:,pipe_j+1:], inside=0)
     return vz_array
 
 def thDiffusivity(k, rho, cpHat):
