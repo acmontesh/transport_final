@@ -60,23 +60,27 @@ def comp_temp_ij(vz, r, dr, alpha, t_iplus1, t_iminus1, t_jplus1, t_jminus1):
 
 def r_array(rmax, jcols):
     '''
-    Return array in r direction
+    Return array in r direction, and dr
     :param rmax: Maximum radius
     :param jcols: Number of columns in r direction
-    :return: r_array
+    :return: r_array, dr
     '''
 #     rstep = np.linspace(0, 10, 5)
 #     rstep_array = np.tile(rstep, (4, 1))
-    return np.linspace(0, rmax, jcols)
+    r_array_i = np.linspace(0, rmax, jcols)
+    dr = rmax/(jcols - 1)
+    return r_array_i, dr
 
 def z_array(zmax, irows):
     '''
-    Return array in z direction
+    Return array in z direction, and dz
     :param zmax: Maximum depth (max. z)
     :param irows: Number of rows in z direction
-    :return: z_array
+    :return: z_array, dz
     '''
-    return np.linspace(0, zmax, irows)
+    z_array_i = np.linspace(0, zmax, irows)
+    dz = zmax/(irows - 1)
+    return z_array_i, dz
 
 def initialize_temp_array(irows, jcols):
     '''
