@@ -85,5 +85,5 @@ def initialize_temp_array(irows, jcols):
     :param jcols: Number of columns in array
     :return: temp_array
     '''
-    return np.ones(irows, jcols)
+    return np.ones((irows, jcols))
 
