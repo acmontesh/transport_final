@@ -31,7 +31,7 @@ def comp_vz_array(r_array, pipe_j, irows, jcols):
     r_array = np.tile(r_array, (irows, 1))
     vz_array = np.ones((irows, jcols))
     vz_array[:,:pipe_j+1] = vz(r_array[:,:pipe_j+1], inside=1)
-    vz_array[:,pipe_j+1:] = vz(r_array[:,pipe_j+1:], inside=0)
+    vz_array[:,pipe_j+1:] = -vz(r_array[:,pipe_j+1:], inside=0)
     return vz_array
 
 def thDiffusivity(k, rho, cpHat):
@@ -116,7 +116,7 @@ def z_array(zmax, irows):
     return z_array_i, dz
 
 
-def initialize_temp_array(irows, jcols):
+def initialize_temp_array(irows, jcols, form_temp_array):
     import numpy as np
     '''
     Returns array of ones for initial temperature array
@@ -124,7 +124,8 @@ def initialize_temp_array(irows, jcols):
     :param jcols: Number of columns in array
     :return: temp_array
     '''
-    return np.ones((irows, jcols))
+    temp_array = np.tile(form_temp_array.reshape(-1,1), (1, jcols))
+    return temp_array #np.ones((irows, jcols))
 
 def search_index(arr, value):
     '''
