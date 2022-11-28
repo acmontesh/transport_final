@@ -6,7 +6,9 @@ import numpy as np
 def vz(r,inside=1):
     # vz is the z-velocity as a function of r in ft/s. 
     #r is the distance from the center of the drill pipe, in inches. 
-    #inside is a boolean buffer that indicates whether the node is inside or outside of the DP. 
+    #inside is a boolean buffer that indicates whether the node is inside or outside of the DP.
+    # Velocity function based on MW 10 ppg assumption / 10 gpm flowrate
+    # R pipe 2.52 - R well 3.25
     # import math
     if inside==1:
         return 0.32*(1-(r/2.52)**2.)
@@ -36,13 +38,13 @@ def thDiffusivity(k, rho, cpHat):
     #cpHat is the mud heat capacity per mass unit in BTU/lbm-degF
     return 3.7E-5*k/(rho*cpHat)
 
-def lambda1(vz, dr, alpha):
+def lambda1(vz, dr, dz, alpha):
     #lambda1 is a linear term that multiplies part of the discretized version of PDE. 
     #lambda1 is dimensionless. 
     #vz is fluid velocity in ft/s
     #dr is the cell length in the grid, in ft. 
     #alpha is the mud thermal diffusivity in ft^2/s.
-    return vz*dr/(4*alpha)
+    return vz*(dr**2)/(4*alpha*dz)
 
 def lambda2(r, dr):
     #lambda2 is a linear term that multiplies part of the discretized version of PDE. 
@@ -51,7 +53,7 @@ def lambda2(r, dr):
     #dr is the cell length in the grid, in ft. 
     return dr*3/r
 
-def comp_temp_ij(temp_array, vz_array, r_array, dr, alpha, irows):
+def comp_temp_ij(temp_array, vz_array, r_array, dr, dz,alpha, irows):
     '''
     Returns Temperature Array 'temp_array' after computing heat transfer
     :param vz: fluid velocity in ft/s
@@ -62,22 +64,24 @@ def comp_temp_ij(temp_array, vz_array, r_array, dr, alpha, irows):
     '''
 
     # Compute current lambdas
-    lambda1_ij = lambda1(vz_array, dr, alpha)
+    lambda1_ij = lambda1(vz_array, dr, dz, alpha)
+    lambda1_ij = lambda1_ij[1:-1, 1:-1].copy()
     lambda2_ij = lambda2(r_array, dr)
     lambda2_ij = np.tile(lambda2_ij, (irows, 1))
+    lambda2_ij = lambda2_ij[1:-1, 1:-1].copy()
     # Compute current Temperature
     # t_ij = lambda1_ij(t_iplus1-t_iminus1) + 0.5*(t_iplus1+t_iminus1) - lambda2_ij(t_jplus1 - t_jminus1)
     t_iplus1 = temp_array[2:, 1:-1]
-    lambda1_plus1 = lambda1_ij[2:, 1:-1]
+    # lambda1_plus1 = lambda1_ij[2:, 1:-1]
     t_iminus1 = temp_array[:-2, 1:-1]
-    lambda1_minus1 = lambda1_ij[:-2, 1:-1]
+    # lambda1_minus1 = lambda1_ij[:-2, 1:-1]
     t_jplus1 = temp_array[1:-1, 2:]
-    lambda2_plus1 = lambda2_ij[1:-1, 2:]
+    # lambda2_plus1 = lambda2_ij[1:-1, 2:]
     t_jminus1 = temp_array[1:-1, :-2]
-    lambda2_minus1 = lambda2_ij[1:-1, :-2]
+    # lambda2_minus1 = lambda2_ij[1:-1, :-2]
 
-    temp_array_new = (t_iplus1 * lambda1_plus1 - t_iminus1 * lambda1_minus1) + 0.5 * (t_iplus1 + t_iminus1) - (
-            t_jplus1 * lambda2_plus1 - t_jminus1 * lambda2_minus1)
+    temp_array_new = lambda2_ij*(t_iplus1 - t_iminus1) + 0.5 * (t_iplus1 + t_iminus1) - lambda1_ij*(
+            t_jplus1 - t_jminus1)
     temp_array[1:-1, 1:-1] = temp_array_new
     return temp_array
 
@@ -90,7 +94,7 @@ def r_array(rmax, jcols):
     '''
 #     rstep = np.linspace(0, 10, 5)
 #     rstep_array = np.tile(rstep, (4, 1))
-    r_array_i = np.linspace(0.01, rmax, jcols)
+    r_array_i = np.linspace(0.0001, rmax, jcols)
     dr = rmax/(jcols - 1)
     return r_array_i, dr
 
@@ -158,7 +162,7 @@ def set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_t
     # Set boundaries
     # Upper Boundary
     temp_array[0, 0:pipe_j + 1] = t_surf
-    temp_array[0, pipe_j + 1:] = temp_array[2, pipe_j + 1:] - 2 * dr * q_top
+    temp_array[0, pipe_j + 1:] = temp_array[2, pipe_j + 1:] - 2 * dz * q_top
     # Right Boundary
     temp_array[:shoe_i + 1, -1] = temp_array[:shoe_i + 1, -3] - 2 * dr * q_right
     temp_array[shoe_i + 1:, -1] = form_temp_array[shoe_i + 1:]
