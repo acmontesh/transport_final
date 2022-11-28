@@ -31,7 +31,7 @@ def comp_vz_array(r_array, pipe_j, irows, jcols):
     r_array = np.tile(r_array, (irows, 1))
     vz_array = np.ones((irows, jcols))
     vz_array[:,:pipe_j+1] = vz(r_array[:,:pipe_j+1], inside=1)
-    vz_array[:,pipe_j+1:] = vz(r_array[:,pipe_j+1:], inside=0)
+    vz_array[:,pipe_j+1:] = -vz(r_array[:,pipe_j+1:], inside=0)
     return vz_array
 
 def thDiffusivity(k, rho, cpHat):
@@ -74,15 +74,10 @@ def comp_temp_ij(temp_array, vz_array, r_array, dr, dz,alpha, irows):
     lambda2_ij = np.tile(lambda2_ij, (irows, 1))
     lambda2_ij = lambda2_ij[1:-1, 1:-1].copy()
     # Compute current Temperature
-    # t_ij = lambda1_ij(t_iplus1-t_iminus1) + 0.5*(t_iplus1+t_iminus1) - lambda2_ij(t_jplus1 - t_jminus1)
     t_iplus1 = temp_array[2:, 1:-1]
-    # lambda1_plus1 = lambda1_ij[2:, 1:-1]
     t_iminus1 = temp_array[:-2, 1:-1]
-    # lambda1_minus1 = lambda1_ij[:-2, 1:-1]
     t_jplus1 = temp_array[1:-1, 2:]
-    # lambda2_plus1 = lambda2_ij[1:-1, 2:]
     t_jminus1 = temp_array[1:-1, :-2]
-    # lambda2_minus1 = lambda2_ij[1:-1, :-2]
 
     temp_array_new = lambda2_ij*(t_iplus1 - t_iminus1) + 0.5 * (t_iplus1 + t_iminus1) - lambda1_ij*(
             t_jplus1 - t_jminus1)
@@ -97,8 +92,7 @@ def r_array(rmax, jcols):
     :param jcols: Number of columns in r direction
     :return: r_array, dr
     '''
-#     rstep = np.linspace(0, 10, 5)
-#     rstep_array = np.tile(rstep, (4, 1))
+
     r_array_i = np.linspace(0.0001, rmax, jcols)
     dr = rmax/(jcols - 1)
     return r_array_i, dr
@@ -116,7 +110,7 @@ def z_array(zmax, irows):
     return z_array_i, dz
 
 
-def initialize_temp_array(irows, jcols):
+def initialize_temp_array(irows, jcols, form_temp_array):
     import numpy as np
     '''
     Returns array of ones for initial temperature array
@@ -124,7 +118,8 @@ def initialize_temp_array(irows, jcols):
     :param jcols: Number of columns in array
     :return: temp_array
     '''
-    return np.ones((irows, jcols))
+    temp_array = np.tile(form_temp_array.reshape(-1,1), (1, jcols))
+    return temp_array
 
 def search_index(arr, value):
     '''
@@ -174,7 +169,7 @@ def set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_t
     temp_array[:shoe_i + 1, -1] = temp_array[:shoe_i + 1, -3] - 2 * dr * q_right
     temp_array[shoe_i + 1:, -1] = form_temp_array[shoe_i + 1:]
     # Bottom Boundary
-    temp_array[-1, :] = temp_array[-3, :] + q0/k_mud # Based on Fourier's law #temp_array[-3, :] - 2 * dz * q0
+    temp_array[-1, :] = temp_array[-3, :] + q0/k_mud # Based on Fourier's law
     # Left Boundary
     temp_array[:, 0] = temp_array[:, 2] - 2 * dr * q_left
     return temp_array

@@ -3,8 +3,8 @@ import numpy as np
 from functions import *
 
 # Define grid size
-irows = 50
-jcols = 20
+irows = 200
+jcols = 50
 
 # Fluid Properties
 k_mud = 1.2*0.5778 # 1.2 W/m.K to BTU/h.ft.degF - From Magdy Abdel Hafis
@@ -14,7 +14,7 @@ cpHat = 0.3824 # 1600 J/kg.K to BTU/lbm-degF (1 to 0.00024) - From Magdy Abdel H
 
 # Define well dimensions
 rmax = 3.25/12 #ft # 12.25/2 # inches
-r_dp = 2.93/12 #ft # inches
+r_dp = 2.52/12 #ft # inches
 zmax = 2000 # ft
 z_shoe = 1000 # ft
 
@@ -37,7 +37,7 @@ vz_array = comp_vz_array(r_array_inch, pipe_j, irows, jcols) # r input must be i
 alpha = thDiffusivity(k_mud, rho, cpHat)
 
 # Initialize Temperature array
-temp_array = initialize_temp_array(irows, jcols)
+temp_array = initialize_temp_array(irows, jcols, form_temp_array)
 
 max_error = 1000
 i = 0
