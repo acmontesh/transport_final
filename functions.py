@@ -2,8 +2,9 @@
 #   SET OF FUNCTIONS TO SOLVE ENERGY EQ. IN FINAL PROJECT TP. ####
 #############  VORTICITY TEAM ####################################
 ##################################################################
-import numpy as np
-def vz(r,inside=1):
+
+def vz(r,inside=1, holeR=3.25, pipeR=2.52):
+    import numpy as np
     # vz is the z-velocity as a function of r in ft/s. 
     #r is the distance from the center of the drill pipe, in inches. 
     #inside is a boolean buffer that indicates whether the node is inside or outside of the DP.
@@ -11,9 +12,10 @@ def vz(r,inside=1):
     # R pipe 2.52 - R well 3.25
     # import math
     if inside==1:
-        return 0.32*(1-(r/2.52)**2.)
+        return 0.32*(1-(r/pipeR)**2.)
     else:
-        return 175.7*(1-(r/3.25)**2.-1.811*np.log(3.25/r))
+        kappa = pipeR/holeR
+        return 175.7*(1-(r/holeR)**2.-((1-kappa**2.)/np.log(1/kappa))*np.log(holeR/r))
 
 def comp_vz_array(r_array, pipe_j, irows, jcols):
     '''
