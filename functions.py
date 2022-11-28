@@ -56,7 +56,7 @@ def lambda2(r, dr):
     #dr is the cell length in the grid, in ft. 
     return dr*3/r
 
-def comp_temp_ij(temp_array, vz_array, r_array, dr, dz,alpha, irows):
+def comp_temp_ij(temp_array, vz_array, r_array, dr, dz,alpha, irows, lambda_sor=1.5):
     import numpy as np
     '''
     Returns Temperature Array 'temp_array' after computing heat transfer
@@ -81,7 +81,9 @@ def comp_temp_ij(temp_array, vz_array, r_array, dr, dz,alpha, irows):
 
     temp_array_new = lambda2_ij*(t_iplus1 - t_iminus1) + 0.5 * (t_iplus1 + t_iminus1) - lambda1_ij*(
             t_jplus1 - t_jminus1)
-    temp_array[1:-1, 1:-1] = temp_array_new
+    # SOR
+    temp_array_sor = lambda_sor*temp_array_new + (1-lambda_sor)*temp_array[1:-1, 1:-1]
+    temp_array[1:-1, 1:-1] = temp_array_sor
     return temp_array
 
 def r_array(rmax, jcols):
