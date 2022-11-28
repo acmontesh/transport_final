@@ -74,15 +74,10 @@ def comp_temp_ij(temp_array, vz_array, r_array, dr, dz,alpha, irows):
     lambda2_ij = np.tile(lambda2_ij, (irows, 1))
     lambda2_ij = lambda2_ij[1:-1, 1:-1].copy()
     # Compute current Temperature
-    # t_ij = lambda1_ij(t_iplus1-t_iminus1) + 0.5*(t_iplus1+t_iminus1) - lambda2_ij(t_jplus1 - t_jminus1)
     t_iplus1 = temp_array[2:, 1:-1]
-    # lambda1_plus1 = lambda1_ij[2:, 1:-1]
     t_iminus1 = temp_array[:-2, 1:-1]
-    # lambda1_minus1 = lambda1_ij[:-2, 1:-1]
     t_jplus1 = temp_array[1:-1, 2:]
-    # lambda2_plus1 = lambda2_ij[1:-1, 2:]
     t_jminus1 = temp_array[1:-1, :-2]
-    # lambda2_minus1 = lambda2_ij[1:-1, :-2]
 
     temp_array_new = lambda2_ij*(t_iplus1 - t_iminus1) + 0.5 * (t_iplus1 + t_iminus1) - lambda1_ij*(
             t_jplus1 - t_jminus1)
@@ -97,8 +92,7 @@ def r_array(rmax, jcols):
     :param jcols: Number of columns in r direction
     :return: r_array, dr
     '''
-#     rstep = np.linspace(0, 10, 5)
-#     rstep_array = np.tile(rstep, (4, 1))
+
     r_array_i = np.linspace(0.0001, rmax, jcols)
     dr = rmax/(jcols - 1)
     return r_array_i, dr
@@ -125,7 +119,7 @@ def initialize_temp_array(irows, jcols, form_temp_array):
     :return: temp_array
     '''
     temp_array = np.tile(form_temp_array.reshape(-1,1), (1, jcols))
-    return temp_array #np.ones((irows, jcols))
+    return temp_array
 
 def search_index(arr, value):
     '''
