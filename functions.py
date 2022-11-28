@@ -169,7 +169,7 @@ def set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_t
     temp_array[:shoe_i + 1, -1] = temp_array[:shoe_i + 1, -3] - 2 * dr * q_right
     temp_array[shoe_i + 1:, -1] = form_temp_array[shoe_i + 1:]
     # Bottom Boundary
-    temp_array[-1, :] = temp_array[-3, :] + q0/k_mud # Based on Fourier's law #temp_array[-3, :] - 2 * dz * q0
+    temp_array[-1, :] = temp_array[-3, :] + q0/k_mud # Based on Fourier's law
     # Left Boundary
     temp_array[:, 0] = temp_array[:, 2] - 2 * dr * q_left
     return temp_array
