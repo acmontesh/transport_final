@@ -18,6 +18,7 @@ def vz(r,inside=1, holeR=3.25, pipeR=2.52):
         return 175.7*(1-(r/holeR)**2.-((1-kappa**2.)/np.log(1/kappa))*np.log(holeR/r))
 
 def comp_vz_array(r_array, pipe_j, irows, jcols):
+    import numpy as np
     '''
     Return vz array
     :param r_array: Dimensions array in r direction
@@ -56,6 +57,7 @@ def lambda2(r, dr):
     return dr*3/r
 
 def comp_temp_ij(temp_array, vz_array, r_array, dr, dz,alpha, irows):
+    import numpy as np
     '''
     Returns Temperature Array 'temp_array' after computing heat transfer
     :param vz: fluid velocity in ft/s
@@ -88,6 +90,7 @@ def comp_temp_ij(temp_array, vz_array, r_array, dr, dz,alpha, irows):
     return temp_array
 
 def r_array(rmax, jcols):
+    import numpy as np
     '''
     Return array in r direction, and dr
     :param rmax: Maximum radius
@@ -101,6 +104,7 @@ def r_array(rmax, jcols):
     return r_array_i, dr
 
 def z_array(zmax, irows):
+    import numpy as np
     '''
     Return array in z direction, and dz
     :param zmax: Maximum depth (max. z)
@@ -113,6 +117,7 @@ def z_array(zmax, irows):
 
 
 def initialize_temp_array(irows, jcols):
+    import numpy as np
     '''
     Returns array of ones for initial temperature array
     :param irows: Number of rows in array
