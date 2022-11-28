@@ -65,10 +65,10 @@ def comp_temp_ij(temp_array, vz_array, r_array, dr, dz,alpha, irows):
 
     # Compute current lambdas
     lambda1_ij = lambda1(vz_array, dr, dz, alpha)
-    lambda1_ij = lambda1_ij[1:-1].copy()
+    lambda1_ij = lambda1_ij[1:-1, 1:-1].copy()
     lambda2_ij = lambda2(r_array, dr)
     lambda2_ij = np.tile(lambda2_ij, (irows, 1))
-    lambda2_ij = lambda2_ij[1:-1].copy()
+    lambda2_ij = lambda2_ij[1:-1, 1:-1].copy()
     # Compute current Temperature
     # t_ij = lambda1_ij(t_iplus1-t_iminus1) + 0.5*(t_iplus1+t_iminus1) - lambda2_ij(t_jplus1 - t_jminus1)
     t_iplus1 = temp_array[2:, 1:-1]

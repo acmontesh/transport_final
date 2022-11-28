@@ -14,7 +14,7 @@ cpHat = 0.3824 # 1600 J/kg.K to BTU/lbm-degF (1 to 0.00024) - From Magdy Abdel H
 
 # Define well dimensions
 rmax = 3.25/12 #ft # 12.25/2 # inches
-r_dp = 2.52/12 #ft # inches
+r_dp = 2.93/12 #ft # inches
 zmax = 2000 # ft
 z_shoe = 1000 # ft
 
