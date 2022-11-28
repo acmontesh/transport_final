@@ -3,23 +3,24 @@ import numpy as np
 from functions import *
 
 # Define grid size
-irows = 10
-jcols = 10
+irows = 50
+jcols = 20
 
-# Fluid Properties (REVIEW!)
-k_mud = 2 #
-rho = 1.0 # gr/cm3
-cpHat = 1 #
+# Fluid Properties
+k_mud = 1.2*0.5778 # 1.2 W/m.K to BTU/h.ft.degF - From Magdy Abdel Hafis
+rho = 10 # ppg - Assumption in Velocity Formula
+cpHat = 0.3824 # 1600 J/kg.K to BTU/lbm-degF (1 to 0.00024) - From Magdy Abdel Hafis
+# Review unit conversion
 
 # Define well dimensions
-rmax = 12.25/2 # inches
-r_dp = 6/2 # inches
+rmax = 3.25 # 12.25/2 # inches
+r_dp = 2.52 # inches
 zmax = 2000 # ft
 z_shoe = 1000 # ft
 
 # Boundary Conditions
-t_surf = 25 # degC
-temp_grad = 3/3.28 # degC/100 ft
+t_surf = 77 # degC
+temp_grad = 1.64592 # degF/100 ft (equivalent to 3 degC/100m)
 q0 = 926 # BTU/h ft2 - From pipe friction
 q_top = 0
 q_right = 0 # Casing isolation

@@ -6,7 +6,9 @@ import numpy as np
 def vz(r,inside=1):
     # vz is the z-velocity as a function of r in ft/s. 
     #r is the distance from the center of the drill pipe, in inches. 
-    #inside is a boolean buffer that indicates whether the node is inside or outside of the DP. 
+    #inside is a boolean buffer that indicates whether the node is inside or outside of the DP.
+    # Velocity function based on MW 10 ppg assumption / 10 gpm flowrate
+    # R pipe 2.52 - R well 3.25
     # import math
     if inside==1:
         return 0.32*(1-(r/2.52)**2.)
