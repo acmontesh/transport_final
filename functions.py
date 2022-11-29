@@ -101,7 +101,7 @@ def gen_r_array(rmax, jcols):
     :return: r_array, dr
     '''
 
-    r_array_i = np.linspace(0.0001, rmax, jcols)
+    r_array_i = np.linspace(0.1, rmax, jcols)
     dr = rmax / (jcols - 1)
     return r_array_i, dr
 
@@ -243,15 +243,12 @@ def set_temp_bc(temp_array, form_temp_array, r_array, vz_array,dr, dz, pipe_j, s
     :return:
     '''
     import numpy as np
-    # Set boundaries
+    # Set Boundary Conditions - Temperature Reference
     # Upper Boundary
     temp_array[0, 0:pipe_j + 1] = t_surf
     # Right Boundary
     temp_array[shoe_i + 1:, -1] = form_temp_array[shoe_i + 1:]
-    # Bottom Boundary
-    # temp_array[-1, :] = temp_array[-3, :] + q0/k_mud # Based on Fourier's law
-    # Left Boundary
-    # temp_array[:, 0] = temp_array[:, 2] - 2 * dr * q_left
+
     aux_temp_array = comp_aux_temp_array(temp_array, vz_array, r_array, dr, dz, pipe_j, q_top, q_right, q0, q_left,
                                          k_mud, jcols, irows, alpha)
     # Upper Boundary - Neumann BC
@@ -259,7 +256,7 @@ def set_temp_bc(temp_array, form_temp_array, r_array, vz_array,dr, dz, pipe_j, s
     # Right Boundary - Neumann BC
     temp_array[:shoe_i + 1, -1] = aux_temp_array[1:shoe_i + 2, -1]
     # Bottom Boundary - Neumann BC
-    temp_array[-1, :] = aux_temp_array[-1, 1:-1]
+    temp_array[-1, 1:-1] = aux_temp_array[-2, 2:-2]
     # Left Boundary - Neumann BC
-    temp_array[:, 0] = aux_temp_array[1:-1, 1]
+    temp_array[1:, 0] = aux_temp_array[2:-1, 1]
     return temp_array

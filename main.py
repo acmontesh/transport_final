@@ -3,8 +3,8 @@ import numpy as np
 from functions import *
 
 # Define grid size
-irows = 10
-jcols = 10
+irows = 100
+jcols = 100
 
 # Fluid Properties
 k_mud = 1.2*0.5778 # 1.2 W/m.K to BTU/h.ft.degF - From Magdy Abdel Hafis
@@ -21,7 +21,7 @@ z_shoe = 1000 # ft
 # Boundary Conditions
 t_surf = 77 # degC
 temp_grad = 1.64592 # degF/100 ft (equivalent to 3 degC/100m)
-q0 = 926 # BTU/h ft2 - From pipe friction
+q0 = 0 # BTU/h ft2 - From pipe friction
 q_top = 0
 q_right = 0 # Casing isolation
 q_left = 0
@@ -41,7 +41,7 @@ temp_array = initialize_temp_array(irows, jcols, form_temp_array)
 
 max_error = 1000
 i = 0
-while (max_error>50) and (i < 100):
+while (max_error>.1) and (i < 100):
     i += 1
     # Set boundaries
     temp_array_old = np.copy(temp_array) # for error computing
