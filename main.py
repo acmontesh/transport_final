@@ -21,7 +21,7 @@ z_shoe = 1000 # ft
 # Boundary Conditions
 t_surf = 77 # degC
 temp_grad = 1.64592 # degF/100 ft (equivalent to 3 degC/100m)
-q0 = 0 # BTU/h ft2 - From pipe friction
+q0 = 926 # BTU/h ft2 - From pipe friction
 q_top = 0
 q_right = 0 # Casing isolation
 q_left = 0
