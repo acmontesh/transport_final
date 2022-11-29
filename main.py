@@ -3,8 +3,8 @@ import numpy as np
 from functions import *
 
 # Define grid size
-irows = 200
-jcols = 50
+irows = 10
+jcols = 10
 
 # Fluid Properties
 k_mud = 1.2*0.5778 # 1.2 W/m.K to BTU/h.ft.degF - From Magdy Abdel Hafis
@@ -27,9 +27,9 @@ q_right = 0 # Casing isolation
 q_left = 0
 
 # Create input arrays
-r_array, dr = r_array(rmax, jcols)
+r_array, dr = gen_r_array(rmax, jcols)
 r_array_inch = r_array*12
-z_array, dz = z_array(zmax, irows)
+z_array, dz = gen_z_array(zmax, irows)
 pipe_j = search_index(r_array, r_dp) # j index for r = r_dp
 shoe_i = search_index(z_array, z_shoe) # i index for z = z_shoe
 form_temp_array = gen_form_temp_array(temp_grad, t_surf, z_array)
@@ -45,7 +45,8 @@ while (max_error>50) and (i < 100):
     i += 1
     # Set boundaries
     temp_array_old = np.copy(temp_array) # for error computing
-    temp_array = set_temp_bc(temp_array, form_temp_array, dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left, k_mud)
+    temp_array = set_temp_bc(temp_array, form_temp_array, r_array, vz_array,dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left, k_mud,
+                 jcols, irows, alpha)
     temp_array = comp_temp_ij(temp_array, vz_array, r_array, dr, dz, alpha, irows)
     error_array = np.absolute(temp_array - temp_array_old)
     max_error = error_array.max()
