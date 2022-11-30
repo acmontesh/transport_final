@@ -3,8 +3,8 @@ import numpy as np
 from functions import *
 
 # Define grid size
-irows = 500
-jcols = 100
+irows = 10
+jcols = 5
 
 # Fluid Properties
 k_mud = 1.2*0.5778 # 1.2 W/m.K to BTU/h.ft.degF - From Magdy Abdel Hafis
@@ -38,20 +38,35 @@ alpha = thDiffusivity(k_mud, rho, cpHat)
 
 # Initialize Temperature array
 temp_array = initialize_temp_array(irows, jcols, form_temp_array)
-lambda_sor = 0.5
+lambda_sor = 1.5
 
-max_error = 1000
-error_old = 1001
-i = 0
-while (max_error>25) and (i < 2000) and (max_error < error_old):
-    i += 1
-    error_old = max_error
-    # Set boundaries
-    temp_array_old = np.copy(temp_array) # for error computing
-    temp_array = set_temp_bc(temp_array, form_temp_array, r_array, vz_array, dr, dz, pipe_j, shoe_i, t_surf, q_top,
+# max_error = 1000
+# error_old = 1001
+# i = 0
+# while (max_error>25) and (i < 2000) and (max_error < error_old):
+#     i += 1
+#     error_old = max_error
+#     # Set boundaries
+#     temp_array_old = np.copy(temp_array) # for error computing
+#     temp_array = set_temp_bc(temp_array, form_temp_array, r_array, vz_array, dr, dz, pipe_j, shoe_i, t_surf, q_top,
+#                              q_right, q0, q_left, k_mud, jcols, irows, alpha, lambda_sor)
+#     temp_array = comp_temp_ij(temp_array, vz_array, r_array, dr, dz, alpha, irows, lambda_sor)
+#     error_array = np.absolute(temp_array - temp_array_old)
+#     max_error = error_array.max()
+#     i_steps_new = i
+# print(temp_array)
+
+# Set Boundary Conditions
+temp_array = set_temp_bc(temp_array, form_temp_array, r_array, vz_array, dr, dz, pipe_j, shoe_i, t_surf, q_top,
                              q_right, q0, q_left, k_mud, jcols, irows, alpha, lambda_sor)
-    temp_array = comp_temp_ij(temp_array, vz_array, r_array, dr, dz, alpha, irows, lambda_sor)
-    error_array = np.absolute(temp_array - temp_array_old)
-    max_error = error_array.max()
-    i_steps_new = i
+
+for i in range(irows-1, 0, 1):
+    print(i)
+    for j in range(jcols-1, 0, 1):
+        print(j)
+        r_ij = r_array[i, j]
+
+        vz_ij = vz_array[i, j]
+        # temp_array = comp_temp_ij_for_loop(temp_array, vz_ij, r_ij, dr, dz, alpha, lambda_sor, i, j)
+
 print(temp_array)
