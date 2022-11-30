@@ -61,7 +61,7 @@ def lambda2(r, dr):
     return dr * 3 / r
 
 
-def comp_temp_ij(temp_array, vz_array, r_array, dr, dz, alpha, irows, lambda_sor=1.5):
+def comp_temp_ij(temp_array, vz_array, r_array, dr, dz, alpha, irows, lambda_sor):
     import numpy as np
     '''
     Returns Temperature Array 'temp_array' after computing heat transfer
@@ -208,7 +208,7 @@ def create_imaginary_vz_array(vz_array, irows, jcols):
     vz_array_imaginary = np.concatenate([left_im_col, vz_array_imaginary, right_im_col], axis=1)
     return vz_array_imaginary
 
-def comp_aux_temp_array(temp_array, vz_array, r_array,dr, dz, pipe_j, q_top, q_right, q0, q_left, k_mud, jcols, irows, alpha):
+def comp_aux_temp_array(temp_array, vz_array, r_array,dr, dz, pipe_j, q_top, q_right, q0, q_left, k_mud, jcols, irows, alpha, lambda_sor):
     '''
     Compute temperatures for array with imaginary rows and columns - to extract BC
     :param alpha:
@@ -219,12 +219,14 @@ def comp_aux_temp_array(temp_array, vz_array, r_array,dr, dz, pipe_j, q_top, q_r
     vz_array_imaginary = create_imaginary_vz_array(vz_array, irows, jcols)
     r_array_imaginary = np.concatenate([np.array([r_array[1]]), r_array, np.array([r_array[-1]+dr])])
     # Compute temperatures for array with imaginary rows and columns - to extract BC
-    aux_temp_array = comp_temp_ij(temp_array_imaginary, vz_array_imaginary, r_array_imaginary, dr, dz, alpha, irows+2, lambda_sor=1.5)
+    aux_temp_array = comp_temp_ij(temp_array_imaginary, vz_array_imaginary, r_array_imaginary, dr, dz, alpha, irows + 2,
+                                  lambda_sor=lambda_sor)
     return aux_temp_array
 def set_temp_bc(temp_array, form_temp_array, r_array, vz_array,dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left, k_mud,
-                 jcols, irows, alpha):
+                 jcols, irows, alpha, lambda_sor):
     '''
     Return temp_array with boundary conditions
+    :param lambda_sor:
     :param vz_array:
     :param jcols:
     :param irows:
@@ -250,7 +252,7 @@ def set_temp_bc(temp_array, form_temp_array, r_array, vz_array,dr, dz, pipe_j, s
     temp_array[shoe_i + 1:, -1] = form_temp_array[shoe_i + 1:]
 
     aux_temp_array = comp_aux_temp_array(temp_array, vz_array, r_array, dr, dz, pipe_j, q_top, q_right, q0, q_left,
-                                         k_mud, jcols, irows, alpha)
+                                         k_mud, jcols, irows, alpha, lambda_sor)
     # Upper Boundary - Neumann BC
     temp_array[0, pipe_j + 1:] = aux_temp_array[1, pipe_j + 2:-1]
     # Right Boundary - Neumann BC

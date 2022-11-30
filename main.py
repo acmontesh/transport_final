@@ -3,7 +3,7 @@ import numpy as np
 from functions import *
 
 # Define grid size
-irows = 100
+irows = 500
 jcols = 100
 
 # Fluid Properties
@@ -38,17 +38,20 @@ alpha = thDiffusivity(k_mud, rho, cpHat)
 
 # Initialize Temperature array
 temp_array = initialize_temp_array(irows, jcols, form_temp_array)
+lambda_sor = 0.5
 
 max_error = 1000
+error_old = 1001
 i = 0
-while (max_error>.1) and (i < 100):
+while (max_error>25) and (i < 2000) and (max_error < error_old):
     i += 1
+    error_old = max_error
     # Set boundaries
     temp_array_old = np.copy(temp_array) # for error computing
-    temp_array = set_temp_bc(temp_array, form_temp_array, r_array, vz_array,dr, dz, pipe_j, shoe_i, t_surf, q_top, q_right, q0, q_left, k_mud,
-                 jcols, irows, alpha)
-    temp_array = comp_temp_ij(temp_array, vz_array, r_array, dr, dz, alpha, irows)
+    temp_array = set_temp_bc(temp_array, form_temp_array, r_array, vz_array, dr, dz, pipe_j, shoe_i, t_surf, q_top,
+                             q_right, q0, q_left, k_mud, jcols, irows, alpha, lambda_sor)
+    temp_array = comp_temp_ij(temp_array, vz_array, r_array, dr, dz, alpha, irows, lambda_sor)
     error_array = np.absolute(temp_array - temp_array_old)
     max_error = error_array.max()
-    print(max_error)
+    i_steps_new = i
 print(temp_array)
