@@ -91,6 +91,32 @@ def comp_temp_ij(temp_array, vz_array, r_array, dr, dz, alpha, irows, lambda_sor
     temp_array[1:-1, 1:-1] = temp_array_sor
     return temp_array
 
+def comp_temp_ij_for_loop(temp_array, vz, r, dr, dz, alpha, lambda_sor, i, j):
+    import numpy as np
+    '''
+    Returns Temperature Array 'temp_array' after computing heat transfer
+    :param vz: fluid velocity in ft/s
+    :param r: distance from the center of the drill pipe, in inches
+    :param dr: cell length in the grid, in ft
+    :param alpha: mud thermal diffusivity in ft^2/s
+    :return: temp_array
+    '''
+
+    # Compute current lambdas
+    lambda1_ij = lambda1(vz, dr, dz, alpha)
+    lambda2_ij = lambda2(r, dr)
+    # Compute current Temperature
+    t_iplus1 = temp_array[i+1, j]
+    t_iminus1 = temp_array[i-1, j]
+    t_jplus1 = temp_array[i, j+1]
+    t_jminus1 = temp_array[i, j-1]
+
+    temp_array_new = lambda2_ij * (t_iplus1 - t_iminus1) + 0.5 * (t_iplus1 + t_iminus1) - lambda1_ij * (
+            t_jplus1 - t_jminus1)
+    # SOR - Relaxation Scheme
+    temp_array_sor = lambda_sor * temp_array_new + (1 - lambda_sor) * temp_array[i, j]
+    temp_array[i, j] = temp_array_sor
+    return temp_array
 
 def gen_r_array(rmax, jcols):
     import numpy as np
