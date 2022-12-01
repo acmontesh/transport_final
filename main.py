@@ -2,8 +2,8 @@ import numpy as np
 from functions import *
 
 # Define grid size
-irows = 5
-jcols = 4
+irows = 100
+jcols = 10
 
 # Fluid Properties
 k_mud = 1.2*0.5778 # 1.2 W/m.K to BTU/h.ft.degF - From Magdy Abdel Hafis
@@ -50,7 +50,7 @@ temp_array = set_temp_bc(temp_array, form_temp_array, r_array, vz_array, dr, dz,
 j_grid_size = irows*jcols
 j_grid = np.zeros((j_grid_size, j_grid_size))
 # Results Vector
-rf = np.zeros((j_grid_size))
+b_vector = np.zeros((j_grid_size))
 
 for i in np.arange(0, j_grid_size):
     for j in np.arange(0, j_grid_size):
@@ -63,9 +63,9 @@ for i in np.arange(0, j_grid_size):
         lambda2_ij = lambda2(r, dr)
         # Boundaries
         if (i < jcols) or (i % jcols == 0) or ((i+1) % jcols == 0) or (i > (jcols*(irows-1))):
-            # Set Boundary Temp in rf vector
+            # Set Boundary Temp in b_vector vector
             if i == j:
-                rf[i] = temp_array[irow_number, jcol_number]
+                b_vector[i] = temp_array[irow_number, jcol_number]
             # Set values in Jacobian Matrix
             if j == t_iplus1_j(i, jcols):
                 j_grid[i, j] = lambda2_ij + 0.5
@@ -87,6 +87,8 @@ for i in np.arange(0, j_grid_size):
                 j_grid[i, j] = -lambda1_ij
             elif j == t_i_jminus1(i, jcols):
                 j_grid[i, j] = lambda1_ij
+
+temp_array = jacobi(j_grid, b_vector)
 
 # # Compute temperature grid - point by point
 # for i in range(1, irows-1, 1)[::-1]:
