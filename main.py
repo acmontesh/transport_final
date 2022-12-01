@@ -3,8 +3,8 @@ import numpy as np
 from functions import *
 
 # Define grid size
-irows = 200
-jcols = 50
+irows = 100
+jcols = 25
 
 # Fluid Properties
 k_mud = 1.2*0.5778 # 1.2 W/m.K to BTU/h.ft.degF - From Magdy Abdel Hafis
@@ -91,7 +91,7 @@ for i in np.arange(0, j_grid_size):
 
 # get temp array from j_grid
 j_grid_inv = svdsolve(j_grid) #np.linalg.inv(j_grid)
-temp_array_final = np.matmul(b_vector, j_grid_inv)
+temp_array_final = np.matmul(j_grid_inv, b_vector)
 
 # temp_array = jacobi(j_grid, b_vector)
 
