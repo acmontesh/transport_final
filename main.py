@@ -1,11 +1,9 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from functions import *
 
 # Define grid size
-irows = 200
-jcols = 50
+irows = 1000
+jcols = 200
 
 # Fluid Properties
 k_mud = 1.2*0.5778 # 1.2 W/m.K to BTU/h.ft.degF - From Magdy Abdel Hafis
@@ -42,28 +40,68 @@ r_array_plot = np.tile(r_array, irows)
 z_array_plot = np.repeat(z_array, jcols)
 # Initialize Temperature array
 temp_array = initialize_temp_array(irows, jcols, form_temp_array)
-lambda_sor = 1
+lambda_sor = 1.5
 
 # Set Boundary Conditions
 temp_array = set_temp_bc(temp_array, form_temp_array, r_array, vz_array, dr, dz, pipe_j, shoe_i, t_surf, q_top,
                              q_right, q0, q_left, k_mud, jcols, irows, alpha, lambda_sor)
 
-# Compute temperature grid - point by point
-for i in range(1, irows-1, 1)[::-1]:
-    for j in range(1, jcols-1, 1)[::-1]:
-        r_ij = r_array[j]
-        vz_ij = vz_array[i, j]
-        temp_array = comp_temp_ij_for_loop(temp_array, vz_ij, r_ij, dr, dz, alpha, lambda_sor, i, j)
+# Jacobian Grid
+j_grid_size = irows*jcols
+j_grid = np.zeros((j_grid_size, j_grid_size))
+# Results Vector
+rf = np.zeros((j_grid_size))
 
-# Array for plot
-temp_array_plot = temp_array.flatten()
-# Save Arryas for plot
-directory = r'C:\Users\SaANTIAGO\Google Drive Streaming\My Drive\17_UT_Austin_PGE\00_Classes\381M_Transport_Phenomena\04_Final_Project\01_Code\transport_final'
-temp_array_file = '\\'.join([directory, 'temp_array.npy'])
-r_array_file = '\\'.join([directory, 'r_array.npy'])
-z_array_file = '\\'.join([directory, 'z_array.npy'])
-np.save(temp_array_file, temp_array)
-np.save(r_array_file, r_array_inch)
-np.save(z_array_file, z_array)
+for i in np.arange(0, j_grid_size):
+    for j in np.arange(0, j_grid_size):
+        # irow and jcol for original arrays
+        irow_number = j // irows
+        jcol_number = j % jcols
+        vz = vz_array(irow_number, jcol_number)
+        r = r_array(jcol_number)
+        lambda1_ij = lambda1(vz, dr, dz, alpha)
+        lambda2_ij = lambda2(r, dr)
+        # Boundaries
+        if (i < jcols) or (i % jcols == 0) or ((i+1) % jcols == 0) or (i > (jcols*(irows-1))):
+            if j == t_iplus1_j(i, jcols):
+                j_grid[i, j] = lambda2_ij + 0.5
+            elif j == t_iminus1_j(i, jcols):
+                j_grid[i, j] = -lambda2_ij + 0.5
+            elif j == t_i_jplus1(i, jcols):
+                j_grid[i, j] = -lambda1_ij
+            elif j == t_i_jminus1(i, jcols):
+                j_grid[i, j] = lambda1_ij
+        # Inside Grid (not boundary)
+        else:
+            if j == t_ij(i):
+                j_grid[i, j] = -1
+            elif j == t_iplus1_j(i, jcols):
+                j_grid[i, j] = lambda2 + 0.5
+            elif j == t_iminus1_j(i, jcols):
+                j_grid[i, j] = -lambda2 + 0.5
+            elif j == t_i_jplus1(i, jcols):
+                j_grid[i, j] = -lambda1
+            elif j == t_i_jminus1(i, jcols):
+                j_grid[i, j] = lambda1
+
+# # Compute temperature grid - point by point
+# for i in range(1, irows-1, 1)[::-1]:
+#     for j in range(1, jcols-1, 1)[::-1]:
+#         r_ij = r_array[j]
+#         vz_ij = vz_array[i, j]
+#         temp_array = comp_temp_ij_for_loop(temp_array, vz_ij, r_ij, dr, dz, alpha, lambda_sor, i, j)
+#
+# # Array for plot
+# temp_array_plot = temp_array.flatten()
+# # Save Arryas for plot
+# directory = r'C:\Users\SaANTIAGO\Google Drive Streaming\My Drive\17_UT_Austin_PGE\00_Classes\381M_Transport_Phenomena\04_Final_Project\01_Code\transport_final'
+# temp_array_file = '\\'.join([directory, 'temp_array.npy'])
+# r_array_file = '\\'.join([directory, 'r_array.npy'])
+# z_array_file = '\\'.join([directory, 'z_array.npy'])
+# vz_array_file = '\\'.join([directory, 'vz_array.npy'])
+# np.save(temp_array_file, temp_array)
+# np.save(r_array_file, r_array_inch)
+# np.save(z_array_file, z_array)
+# np.save(vz_array_file, vz_array)
 
 print(temp_array)

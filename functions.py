@@ -288,3 +288,14 @@ def set_temp_bc(temp_array, form_temp_array, r_array, vz_array,dr, dz, pipe_j, s
     # Left Boundary - Neumann BC
     temp_array[1:, 0] = aux_temp_array[2:-1, 1]
     return temp_array
+
+def t_ij(i):
+    return i
+def t_iminus1_j(i, jcols):
+    return i - jcols
+def t_iplus1_j(i, jcols):
+    return i + jcols
+def t_i_jminus1(i, jcols):
+    return i - 1
+def t_i_jplus1(i, jcols):
+    return i + 1
