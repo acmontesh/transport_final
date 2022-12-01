@@ -1,9 +1,10 @@
 import numpy as np
+
 from functions import *
 
 # Define grid size
-irows = 100
-jcols = 10
+irows = 200
+jcols = 50
 
 # Fluid Properties
 k_mud = 1.2*0.5778 # 1.2 W/m.K to BTU/h.ft.degF - From Magdy Abdel Hafis
@@ -88,7 +89,11 @@ for i in np.arange(0, j_grid_size):
             elif j == t_i_jminus1(i, jcols):
                 j_grid[i, j] = lambda1_ij
 
-temp_array = jacobi(j_grid, b_vector)
+# get temp array from j_grid
+j_grid_inv = svdsolve(j_grid) #np.linalg.inv(j_grid)
+temp_array_final = np.matmul(b_vector, j_grid_inv)
+
+# temp_array = jacobi(j_grid, b_vector)
 
 # # Compute temperature grid - point by point
 # for i in range(1, irows-1, 1)[::-1]:

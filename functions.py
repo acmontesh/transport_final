@@ -316,3 +316,9 @@ def jacobi(A,b,N=25,x=None):
     for i in range(N):
         x = (b - np.dot(R,x)) / D
     return x
+
+def svdsolve(A):
+    import numpy as np
+    u, s, v = np.linalg.svd(A)
+    Ainv = np.dot(v.transpose(), np.dot(np.diag(s**-1), u.transpose()))
+    return Ainv
